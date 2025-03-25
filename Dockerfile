@@ -19,6 +19,7 @@ COPY --from=build /app/package*.json ./
 RUN npm install --only=production
 
 COPY --from=build /app/dist ./dist
+COPY --from=build /app/swagger ./swagger
 
 EXPOSE 3000
 
