@@ -1,5 +1,5 @@
 import { TKeyType } from '@veramo/core'
-import { agent } from './setup.js'
+import { agent } from './setup'
 
 async function createDID(method: string, alias: string = 'default', keyType: TKeyType = 'Secp256k1') {
   try {

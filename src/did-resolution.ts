@@ -2,7 +2,7 @@ import { createAgent } from '@veramo/core'
 import { DIDResolverPlugin } from '@veramo/did-resolver'
 import { getResolver as ethrDidResolver } from 'ethr-did-resolver'
 import { getResolver as webDidResolver } from 'web-did-resolver'
-import { agent } from './setup.js'
+import { agent } from './setup'
 // import { MetadataStore } from './metadata-store'
 
 // Metadata storage implementation

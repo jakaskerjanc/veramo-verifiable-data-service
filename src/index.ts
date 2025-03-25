@@ -1,14 +1,17 @@
-import { createDID, manageDIDKeys } from "./did-issuance.js";
-import { resolveDID } from "./did-resolution.js";
-import { listIdentifier } from "./list-identifiers.js";
-import { createVC } from "./create-credential.js";
-import { verifyCredential, getAllCredentialStatuses } from "./verify-credential.js";
-import { W3CVerifiableCredential } from "@veramo/core";
+import { createDID, manageDIDKeys } from "./did-issuance";
+import { resolveDID } from "./did-resolution";
+import { listIdentifier } from "./list-identifiers";
+import { createVC } from "./create-credential";
+import { verifyCredential } from "./verify-credential";
 import express from "express";
+import swaggerUi from 'swagger-ui-express';
+import openapiSpec from '../swagger/openapi.json';
 
 const app = express();
 const port = 3000;
 app.use(express.json());
+
+app.use('/docs', swaggerUi.serve, swaggerUi.setup(openapiSpec));
 
 app.post("/did/add", async (req, res) => {
     try {
@@ -24,7 +27,7 @@ app.post("/did/add", async (req, res) => {
     }
 });
 
-app.get("/did", async (req, res) => {
+app.get("/did", async (_req, res) => {
     try {
         const allDids = await listIdentifier();
         res.send(allDids);

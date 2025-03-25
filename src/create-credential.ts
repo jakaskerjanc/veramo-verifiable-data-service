@@ -1,4 +1,4 @@
-import { agent } from './setup.js'
+import { agent } from './setup'
 
 async function createVC(alias: string, data: { [x: string]: any }) {
     const identifier = await agent.didManagerGetByAlias({ alias })

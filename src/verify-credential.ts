@@ -1,5 +1,5 @@
 import { VerifiableCredential } from '@veramo/core'
-import { agent } from './setup.js'
+import { agent } from './setup'
 
 import { createAgent, ICredentialStatusManager } from '@veramo/core'
 
