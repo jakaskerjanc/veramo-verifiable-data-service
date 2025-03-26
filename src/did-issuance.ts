@@ -1,10 +1,10 @@
 import { TKeyType } from '@veramo/core'
 import { agent } from './setup'
 
-async function createDID(method: string, alias: string = 'default', keyType: TKeyType = 'Secp256k1') {
+async function createDID(provider: string, alias: string = 'default', keyType: TKeyType = 'Secp256k1') {
   try {
     const identifier = await agent.didManagerCreate({
-      provider: `did:${method}`,
+      provider,
       alias,
       options: {
         keyType,
@@ -13,7 +13,7 @@ async function createDID(method: string, alias: string = 'default', keyType: TKe
 
     return identifier
   } catch (error) {
-    console.error(`Error creating DID with method ${method}:`, error)
+    console.error(`Error creating DID ${provider}:`, error)
     throw error
   }
 }

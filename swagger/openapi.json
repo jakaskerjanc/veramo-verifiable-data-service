@@ -2,8 +2,8 @@
   "openapi": "3.0.0",
   "info": {
     "version": "1.0.0",
-    "title": "REST API",
-    "description": ""
+    "title": "REST API (testing)",
+    "description": "Does not work!"
   },
   "servers": [
     {
@@ -23,28 +23,42 @@
         "description": "",
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "DID created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/didObject"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/didObject"
+                }
+              }
+            }
           },
           "500": {
-            "description": "Internal Server Error"
+            "description": "Error creating DID",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
           }
         },
         "requestBody": {
+          "required": true,
           "content": {
             "application/json": {
               "schema": {
-                "type": "object",
-                "properties": {
-                  "method": {
-                    "example": "any"
-                  },
-                  "alias": {
-                    "example": "any"
-                  },
-                  "keyType": {
-                    "example": "any"
-                  }
-                }
+                "$ref": "#/components/schemas/addDid"
               }
             }
           }
@@ -56,10 +70,34 @@
         "description": "",
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "List of all added DIDs",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/didObject"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/didObject"
+                }
+              }
+            }
           },
           "500": {
-            "description": "Internal Server Error"
+            "description": "Error retrieving DIDs",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
           }
         }
       }
@@ -74,15 +112,41 @@
             "required": true,
             "schema": {
               "type": "string"
-            }
+            },
+            "description": "DID URL",
+            "example": "did:ethr:0xb09b66026ba5909a7cfe99b76875431d2b8d5190"
           }
         ],
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "Get DID by URL",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/didObject"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/didObject"
+                }
+              }
+            }
           },
           "500": {
-            "description": "Internal Server Error"
+            "description": "Error retrieving DIDs",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
           }
         }
       }
@@ -92,25 +156,42 @@
         "description": "",
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "VC issued successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/credential"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/credential"
+                }
+              }
+            }
           },
           "500": {
-            "description": "Internal Server Error"
+            "description": "Error issuing VC",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
           }
         },
         "requestBody": {
+          "required": true,
           "content": {
             "application/json": {
               "schema": {
-                "type": "object",
-                "properties": {
-                  "didAlias": {
-                    "example": "any"
-                  },
-                  "credential": {
-                    "example": "any"
-                  }
-                }
+                "$ref": "#/components/schemas/issueVC"
               }
             }
           }
@@ -122,10 +203,62 @@
         "description": "",
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "VC verified successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "example": "boolean"
+                    }
+                  },
+                  "xml": {
+                    "name": "main"
+                  }
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "example": "boolean"
+                    }
+                  },
+                  "xml": {
+                    "name": "main"
+                  }
+                }
+              }
+            }
           },
           "500": {
-            "description": "Internal Server Error"
+            "description": "Error verifying VC",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/credential"
+              }
+            }
           }
         }
       }
@@ -135,31 +268,250 @@
         "description": "",
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "Key added/removed/rotated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/didObject"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/didObject"
+                }
+              }
+            }
           },
           "500": {
-            "description": "Internal Server Error"
+            "description": "Error modifying key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
           }
         },
         "requestBody": {
+          "required": true,
           "content": {
             "application/json": {
               "schema": {
+                "$ref": "#/components/schemas/modifyKey"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "error": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "string"
+          }
+        },
+        "xml": {
+          "name": "error"
+        }
+      },
+      "addDid": {
+        "type": "object",
+        "properties": {
+          "provider": {
+            "type": "string",
+            "example": "did:web:jakaskerjanc.github.io:alice"
+          },
+          "alias": {
+            "type": "string",
+            "example": "default"
+          },
+          "keyType": {
+            "type": "string",
+            "example": "Secp256k1"
+          }
+        },
+        "required": [
+          "provider",
+          "alias",
+          "keyType"
+        ],
+        "xml": {
+          "name": "addDid"
+        }
+      },
+      "didObject": {
+        "type": "object",
+        "properties": {
+          "did": {
+            "type": "string",
+            "example": "did:web:jakaskerjanc.github.io:alice"
+          },
+          "alias": {
+            "type": "string",
+            "example": "default"
+          },
+          "provider": {
+            "type": "string",
+            "example": ""
+          },
+          "controllerKeyId": {
+            "type": "string",
+            "example": "did:web:jakaskerjanc.github.io:alice#key-1"
+          },
+          "keys": {
+            "type": "array",
+            "example": [],
+            "items": {}
+          },
+          "services": {
+            "type": "array",
+            "example": [],
+            "items": {}
+          }
+        },
+        "required": [
+          "did",
+          "alias",
+          "provider",
+          "controllerKeyId",
+          "keys",
+          "services"
+        ],
+        "xml": {
+          "name": "didObject"
+        }
+      },
+      "issueVC": {
+        "type": "object",
+        "properties": {
+          "didAlias": {
+            "type": "string",
+            "example": "default"
+          },
+          "credentialData": {
+            "type": "object",
+            "properties": {
+              "key": {
+                "type": "string",
+                "example": "value"
+              }
+            }
+          }
+        },
+        "required": [
+          "didAlias",
+          "credentialData"
+        ],
+        "xml": {
+          "name": "issueVC"
+        }
+      },
+      "credential": {
+        "type": "object",
+        "properties": {
+          "credential": {
+            "type": "object",
+            "properties": {
+              "@context": {
+                "type": "array",
+                "example": [
+                  "https://www.w3.org/2018/credentials/v1"
+                ],
+                "items": {
+                  "type": "string"
+                }
+              },
+              "type": {
+                "type": "array",
+                "example": [
+                  "VerifiableCredential"
+                ],
+                "items": {
+                  "type": "string"
+                }
+              },
+              "credentialSubject": {
                 "type": "object",
                 "properties": {
-                  "did": {
-                    "example": "any"
+                  "id": {
+                    "type": "string",
+                    "example": "did:web:jakaskerjanc.github.io:alice"
                   },
-                  "kidToRemove": {
-                    "example": "any"
+                  "name": {
+                    "type": "string",
+                    "example": "Alice"
+                  }
+                }
+              },
+              "issuer": {
+                "type": "string",
+                "example": "did:web:jakaskerjanc.github.io:alice"
+              },
+              "issuanceDate": {
+                "type": "string",
+                "example": "2021-07-15T00:00:00Z"
+              },
+              "expirationDate": {
+                "type": "string",
+                "example": "2022-07-15T00:00:00Z"
+              },
+              "credentialStatus": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "example": "https://example.edu/status/24"
                   },
-                  "action": {
-                    "example": "any"
+                  "type": {
+                    "type": "string",
+                    "example": "CredentialStatusList2017"
                   }
                 }
               }
             }
           }
+        },
+        "required": [
+          "credential"
+        ],
+        "xml": {
+          "name": "credential"
+        }
+      },
+      "modifyKey": {
+        "type": "object",
+        "properties": {
+          "did": {
+            "type": "string",
+            "example": "did:ethr:0xb09b66026ba5909a7cfe99b76875431d2b8d5190"
+          },
+          "kidToRemove": {
+            "type": "string",
+            "example": "<public_key_in_hex_encoding>"
+          },
+          "action": {
+            "type": "string",
+            "example": "add"
+          }
+        },
+        "required": [
+          "did",
+          "kidToRemove",
+          "action"
+        ],
+        "xml": {
+          "name": "modifyKey"
         }
       }
     }
