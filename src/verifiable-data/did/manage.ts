@@ -1,5 +1,5 @@
 import { TKeyType } from '@veramo/core'
-import { agent } from './setup'
+import { agent } from '@/verifiable-data/setup'
 
 async function createDID(provider: string, alias: string = 'default', keyType: TKeyType = 'Secp256k1') {
   try {
@@ -73,5 +73,12 @@ async function manageDIDKeys(did: string, action: string, kidToRemove?: string) 
     throw error
   }
 }
+
+async function listIdentifier() {
+    const identifiers = await agent.didManagerFind()
+    return identifiers
+}
+
+export { listIdentifier }	
 
 export { createDID, manageDIDKeys }

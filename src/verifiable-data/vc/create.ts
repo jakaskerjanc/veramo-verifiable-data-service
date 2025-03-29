@@ -1,4 +1,4 @@
-import { agent } from './setup'
+import { agent } from '@/verifiable-data/setup'
 
 async function createVC(alias: string, data: { [x: string]: any }) {
     const identifier = await agent.didManagerGetByAlias({ alias })

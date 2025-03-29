@@ -1,8 +1,7 @@
-import { createDID, manageDIDKeys } from "./did-issuance";
-import { resolveDID } from "./did-resolution";
-import { listIdentifier } from "./list-identifiers";
-import { createVC } from "./create-credential";
-import { verifyCredential } from "./verify-credential";
+import { createDID, manageDIDKeys, listIdentifier } from "@/verifiable-data/did/manage";
+import { resolveDID } from "@/verifiable-data/did/resolve";
+import { createVC } from "@/verifiable-data/vc/create";
+import { verifyCredential } from "@/verifiable-data/vc/verify";
 import express from "express";
 import swaggerUi from 'swagger-ui-express';
 import openapiSpec from '../swagger/openapi.json';

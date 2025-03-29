@@ -1,6 +1,5 @@
 import { VerifiableCredential } from '@veramo/core'
-import { agent } from './setup'
-
+import { agent } from '@/verifiable-data/setup'
 import { createAgent, ICredentialStatusManager } from '@veramo/core'
 
 async function verifyCredential(credential: VerifiableCredential) {

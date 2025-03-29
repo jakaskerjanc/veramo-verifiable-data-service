@@ -19,9 +19,7 @@ import { CredentialPlugin } from '@veramo/credential-w3c'
 // Custom resolvers
 import { DIDResolverPlugin } from '@veramo/did-resolver'
 import { Resolver } from 'did-resolver'
-import { getResolver as ethrDidResolver } from 'ethr-did-resolver'
 import { getResolver as webDidResolver } from 'web-did-resolver'
-import { getDidKeyResolver as keyDidResolver } from '@veramo/did-provider-key'
 
 // Storage plugin using TypeOrm
 import { Entities, KeyStore, DIDStore, IDataStoreORM, PrivateKeyStore, migrations } from '@veramo/data-store'
