@@ -4,14 +4,8 @@ import { createAgent, IDIDManager, IResolver, IDataStore, IKeyManager, ICredenti
 // Core identity manager plugin
 import { DIDManager } from '@veramo/did-manager'
 
-// Ethr did identity provider
-import { EthrDIDProvider } from '@veramo/did-provider-ethr'
-
 // Web did identity provider
 import { WebDIDProvider } from '@veramo/did-provider-web'
-
-// Key did identity provider
-import { KeyDIDProvider } from '@veramo/did-provider-key'
 
 // Core key manager plugin
 import { KeyManager } from '@veramo/key-manager'
@@ -38,9 +32,6 @@ import { DataSource } from 'typeorm'
 // This will be the name for the local sqlite database for demo purposes
 const DATABASE_FILE = 'database.sqlite'
 
-// You will need to get a project ID from infura https://www.infura.io
-const INFURA_PROJECT_ID = '7fc206dd573c4b3eac512956ee63645e'
-
 // This will be the secret key for the KMS
 const KMS_SECRET_KEY =
     '9b3e999cd09c498561610ba723880605a7cc783890a5e7572b41c8469b9a70d0'
@@ -65,31 +56,16 @@ export const agent = createAgent<IDIDManager & IKeyManager & IDataStore & IDataS
         }),
         new DIDManager({
             store: new DIDStore(dbConnection),
-            defaultProvider: 'did:ethr:sepolia',
+            defaultProvider: 'did:web',
             providers: {
-                'did:ethr:sepolia': new EthrDIDProvider({
-                    defaultKms: 'local',
-                    network: 'sepolia',
-                    rpcUrl: 'https://sepolia.infura.io/v3/' + INFURA_PROJECT_ID,
-                }),
-                'did:ethr:mainnet': new EthrDIDProvider({
-                    defaultKms: 'local',
-                    network: 'mainnet',
-                    rpcUrl: 'https://mainnet.infura.io/v3/' + INFURA_PROJECT_ID,
-                }),
                 'did:web': new WebDIDProvider({
                     defaultKms: 'local',
                 }),
-                'did:key': new KeyDIDProvider({
-                    defaultKms: 'local',
-                })
             },
         }),
         new DIDResolverPlugin({
             resolver: new Resolver({
-                ...ethrDidResolver({ infuraProjectId: INFURA_PROJECT_ID }),
                 ...webDidResolver(),
-                ...keyDidResolver(),
             }),
         }),
         new CredentialPlugin(),
