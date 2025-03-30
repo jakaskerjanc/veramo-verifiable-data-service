@@ -1,7 +1,7 @@
 import { TKeyType } from '@veramo/core'
 import { agent } from '@/verifiable-data/setup'
 
-async function createDID(provider: string, alias: string = 'default', keyType: TKeyType = 'Secp256k1') {
+export async function createDID(provider: string, alias: string = 'default', keyType: TKeyType = 'Secp256k1') {
   try {
     const identifier = await agent.didManagerCreate({
       provider,
@@ -18,7 +18,7 @@ async function createDID(provider: string, alias: string = 'default', keyType: T
   }
 }
 
-async function manageDIDKeys(did: string, action: string, kidToRemove?: string) {
+export async function manageDIDKeys(did: string, action: string, kidToRemove?: string) {
   // Implement key rotation, addition, revocation
   try {
     switch (action) {
@@ -74,11 +74,7 @@ async function manageDIDKeys(did: string, action: string, kidToRemove?: string) 
   }
 }
 
-async function listIdentifier() {
+export async function listIdentifier() {
     const identifiers = await agent.didManagerFind()
     return identifiers
 }
-
-export { listIdentifier }	
-
-export { createDID, manageDIDKeys }

@@ -16,8 +16,5 @@ API Endpoints:
 4. VC validation is working. VC revoking, modifying. - not yet. 
 ZeroKnowledge Proof (ZKP) support - not looked into this yet. Verified Presentation?
 
-
-
-
 Use EUDI Wallet to store?
 Comaprison between DIDs

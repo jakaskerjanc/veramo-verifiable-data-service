@@ -5,10 +5,22 @@ import { verifyCredential } from "@/verifiable-data/vc/verify";
 import express from "express";
 import swaggerUi from 'swagger-ui-express';
 import openapiSpec from '../swagger/openapi.json';
+import { initializeDID } from "./verifiable-data/did/init";
+import { generateDIDDocument } from "@/didGenerator";
 
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 3000;
+const host = process.env.HOST || 'localhost:3000';
+
 app.use(express.json());
+
+initializeDID(host)
+
+app.get("/.well-known/did.json", async (req, res) => {
+    const requestHost = req.get('host') || host;
+    const didDocument = generateDIDDocument(requestHost);
+    res.send(didDocument);
+});
 
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(openapiSpec));
 
