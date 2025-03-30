@@ -4,6 +4,9 @@ import { createAgent, IDIDManager, IResolver, IDataStore, IKeyManager, ICredenti
 // Core identity manager plugin
 import { DIDManager } from '@veramo/did-manager'
 
+// Ethr did identity provider
+import { EthrDIDProvider } from '@veramo/did-provider-ethr'
+
 // Web did identity provider
 import { WebDIDProvider } from '@veramo/did-provider-web'
 
@@ -20,6 +23,7 @@ import { CredentialPlugin } from '@veramo/credential-w3c'
 import { DIDResolverPlugin } from '@veramo/did-resolver'
 import { Resolver } from 'did-resolver'
 import { getResolver as webDidResolver } from 'web-did-resolver'
+import { getResolver as ethrDidResolver } from 'ethr-did-resolver'
 
 // Storage plugin using TypeOrm
 import { Entities, KeyStore, DIDStore, IDataStoreORM, PrivateKeyStore, migrations } from '@veramo/data-store'
@@ -59,11 +63,22 @@ export const agent = createAgent<IDIDManager & IKeyManager & IDataStore & IDataS
                 'did:web': new WebDIDProvider({
                     defaultKms: 'local',
                 }),
+                'did:ethr': new EthrDIDProvider({
+                    defaultKms: 'local',
+                    network: 'mainnet',
+                    rpcUrl: 'https://mainnet.infura.io/v3/7fc206dd573c4b3eac512956ee63645e',
+                }),
             },
         }),
         new DIDResolverPlugin({
             resolver: new Resolver({
                 ...webDidResolver(),
+                ...ethrDidResolver({
+                    networks: [{
+                        name: 'mainnet',
+                        rpcUrl: 'https://mainnet.infura.io/v3/7fc206dd573c4b3eac512956ee63645e'
+                    }]
+                }),
             }),
         }),
         new CredentialPlugin(),
