@@ -16,7 +16,13 @@ app.use(express.json());
 
 initializeDID(host)
 
-app.get("/.well-known/did.json", async (req, res) => {
+app.get("/.well-known/did.json", (req, res) => {
+    const requestHost = req.get('host') || host;
+    const didDocument = generateDIDDocument(requestHost);
+    res.send(didDocument);
+});
+
+app.get("/did.json", (req, res) => {
     const requestHost = req.get('host') || host;
     const didDocument = generateDIDDocument(requestHost);
     res.send(didDocument);
@@ -234,5 +240,5 @@ app.post("/did/key/modify", async (req, res) => {
 });
 
 app.listen(port, () => {
-    console.log(`Server is running at http://localhost:${port}`);
+    console.log(`Server is running at http://${host}:${port}`);
 });
