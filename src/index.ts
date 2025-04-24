@@ -1,241 +1,112 @@
-import { createDID, manageDIDKeys, listIdentifier } from "@/verifiable-data/did/manage";
-import { resolveDID } from "@/verifiable-data/did/resolve";
-import { createVC } from "@/verifiable-data/vc/create";
-import { verifyCredential } from "@/verifiable-data/vc/verify";
+import { createDID } from "@/verifiable-data/did/manage";
 import express from "express";
-import swaggerUi from 'swagger-ui-express';
-import openapiSpec from '../swagger/openapi.json';
-import { initializeDID } from "./verifiable-data/did/init";
-import { generateDIDDocument } from "@/didGenerator";
-
+import { agent } from "./verifiable-data/setup";
+import { issuerDid } from "./verifiable-data/did/init";
+import crypto from 'crypto';
 const app = express();
 const port = process.env.PORT || 3000;
-const host = process.env.HOST || 'localhost:3000';
+const host = process.env.HOST || 'localhost';
+
+const pendingChallenges: Record<string, string | undefined> = {};
+
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+  
+  if (req.method === 'OPTIONS') {
+    res.sendStatus(200);
+  }
+  
+  next();
+});
 
 app.use(express.json());
 
-initializeDID(host)
-
-app.get("/.well-known/did.json", (req, res) => {
-    const requestHost = req.get('host') || host;
-    const didDocument = generateDIDDocument(requestHost);
-    res.send(didDocument);
-});
-
-app.get("/did.json", (req, res) => {
-    const requestHost = req.get('host') || host;
-    const didDocument = generateDIDDocument(requestHost);
-    res.send(didDocument);
-});
-
-app.use('/docs', swaggerUi.serve, swaggerUi.setup(openapiSpec));
-
-app.post("/did/add", async (req, res) => {
-    /*  #swagger.requestBody = {
-            required: true,
-            content: {
-                "application/json": {
-                    schema: {
-                        $ref: "#/components/schemas/addDid"
-                    }  
-                }
-            }
-        }
-        #swagger.responses[200] = {
-            description: 'DID created successfully',
-            schema: {
-                $ref: "#/components/schemas/didObject"
-            }
-        }
-        #swagger.responses[500] = {
-            description: 'Error creating DID',
-            schema: {
-                $ref: "#/components/schemas/error"
-            }
-        }
-    */
+app.post('/api/register', async (req, res) => {
+    const { did } = req.body;
     try {
-        const { provider, alias, keyType } = req.body;
-        const didObject = await createDID(provider, alias, keyType);
-        res.send(didObject);
+      const vc = await agent.createVerifiableCredential({
+        credential: {
+          id: issuerDid.did,
+          issuer: { id: issuerDid.did },
+          issuanceDate: new Date().toISOString(),
+          type: ['VerifiableCredential', 'UserCredential'],
+          credentialSubject: {
+            did: did,
+            registeredAt: Date.now(),
+          },
+        },
+        proofFormat: 'jwt',
+      });
+    
+      res.json({ vc });
+    } catch (error) {
+      console.log(error);
+      res.status(500).json({ error: 'Failed to create verifiable credential' });
     }
-    catch (error) {
+});
+  
+app.post('/api/request-challenge', (req, res) => {
+    const { did } = req.body;
+    const challenge = crypto.randomBytes(16).toString('hex');
+    pendingChallenges[did] = challenge;
+    res.json({ challenge });
+});
+  
+app.post('/api/verify', async (req, res) => {
+    const { vp } = req.body;
+    const did = vp.holder
+    const challenge = pendingChallenges[did];
+  
+    if (!challenge) {
+      res.status(400).json({ success: false, error: 'No challenge found.' });
+      return;
+    }
+  
+    try {
+      const result = await agent.verifyPresentation({ presentation: vp, challenge });
+      console.log(result);
+      if (result.verified) {
+        delete pendingChallenges[did];
+        res.json({ success: true });
+        return;
+      }
+      res.status(401).json({ success: false, error: 'Invalid presentation' });
+    } catch (error: unknown) {
+      if (error instanceof Error) {
         console.log(error);
-        res
-            .status(500)
-            .send({ error });
+        res.status(401).json({ success: false, error: error.message });
+        return;
+      }
+      res.status(401).json({ success: false, error: 'Unknown error occurred' });
     }
 });
 
-app.get("/did", async (_req, res) => {
-    /*  #swagger.responses[200] = {
-            description: 'List of all added DIDs',
-            schema: { $ref: "#/components/schemas/didObject" }
-        }
-        #swagger.responses[500] = {
-            description: 'Error retrieving DIDs',
-            schema: {
-                $ref: "#/components/schemas/error"
-            }
-        }
-    */
+app.post('/api/login', async (req, res) => {
+    const { vc } = req.body;
     try {
-        const allDids = await listIdentifier();
-        res.send(allDids);
-    }
-    catch (error) {
-        console.log(error);
-        res
-            .status(500)
-            .send({ error });
-    }
-});
-
-app.get("/did/:didUrl", async (req, res) => {
-    /*  
-        #swagger.parameters['didUrl'] = {
-            in: 'path',
-            description: 'DID URL',
-            required: true,
-            type: 'string',
-            example: 'did:ethr:0xb09b66026ba5909a7cfe99b76875431d2b8d5190'
-        }
-        #swagger.responses[200] = {
-            description: 'Get DID by URL',
-            schema: { $ref: "#/components/schemas/didObject" }
-        }
-        #swagger.responses[500] = {
-            description: 'Error retrieving DIDs',
-            schema: {
-                $ref: "#/components/schemas/error"
-            }
-        }
-    */
-    try {
-        const didUrl = req.params.didUrl;
-        const didObject = await resolveDID(didUrl);
-        res.send(didObject);
-    }
-    catch (error) {
-        console.log(error);
-        res
-            .status(500)
-            .send({ error });
-    }
-});
-
-app.post("/vc/issue", async (req, res) => {
-    /*
-        #swagger.requestBody = {
-            required: true,
-            content: {
-                "application/json": {
-                    schema: {
-                        $ref: "#/components/schemas/issueVC"
-                    }
-                }
-            }
-        }
-        #swagger.responses[200] = {
-            description: 'VC issued successfully',
-            schema: {
-                $ref: "#/components/schemas/credential"
-            }
-        }
-        #swagger.responses[500] = {
-            description: 'Error issuing VC',
-            schema: {
-                $ref: "#/components/schemas/error"
-            }
-        }
-    */
-    try {
-        const { didAlias, credentialData } = req.body;
-        const vc = await createVC(didAlias, credentialData);
-        res.send(vc);
-    }
-    catch (error) {
-        console.log(error);
-        res
-            .status(500)
-            .send({ error });
-    }
-});
-
-app.post("/vc/verify", async (req, res) => {
-    /*
-        #swagger.requestBody = {
-            required: true,
-            content: {
-                "application/json": {
-                    schema: {
-                        $ref: "#/components/schemas/credential"
-                    }
-                }
-            }
-        }
-        #swagger.responses[200] = {
-            description: 'VC verified successfully',
-            schema: {
-                type: "boolean"
-            }
-        }
-        #swagger.responses[500] = {
-            description: 'Error verifying VC',
-            schema: {
-                $ref: "#/components/schemas/error"
-            }
-        }
-    */
-    try {
-        const vc = req.body;
-        console.log(vc);
-        const result = await verifyCredential(vc);
-        res.send(result.verified);
-    }
-    catch (error) {
-        console.log(error);
-        res
-            .status(500)
-            .send({ error });
-    }
-});
-
-app.post("/did/key/modify", async (req, res) => {
-    /*
-        #swagger.requestBody = {
-            required: true,
-            content: {
-                "application/json": {
-                    schema: {
-                        $ref: "#/components/schemas/modifyKey"
-                    }
-                }
-            }
-        }
-        #swagger.responses[200] = {
-            description: 'Key added/removed/rotated successfully',
-            schema: {
-                $ref: "#/components/schemas/didObject"
-            }
-        }
-        #swagger.responses[500] = {
-            description: 'Error modifying key',
-            schema: {
-                $ref: "#/components/schemas/error"
-            }
-        }
-    */
-    try {
-        const { did, kidToRemove, action } = req.body;
-        const result = await manageDIDKeys(did, action, kidToRemove);
-        res.send(result);
-    }
-    catch (error) {
-        console.log(error);
-        res
-            .status(500)
-            .send({ error });
+      // Verify the VC
+      const verificationResult = await agent.verifyCredential({
+        credential: vc,
+      });
+      
+      if (verificationResult.verified) {
+        // Return some user information or token
+        res.json({ 
+          success: true, 
+          user: {
+            did: vc.credentialSubject.id,
+            registeredAt: vc.credentialSubject.registeredAt
+          }
+        });
+        return;
+      }
+      
+      res.status(401).json({ success: false, error: 'Invalid credential' });
+    } catch (error) {
+      console.log(error);
+      res.status(500).json({ success: false, error: 'Error processing login' });
     }
 });
 

@@ -19,6 +19,9 @@ import { KeyManagementSystem, SecretBox } from '@veramo/kms-local'
 // W3C Verifiable Credential plugin
 import { CredentialPlugin } from '@veramo/credential-w3c'
 
+// LD Credential issuer plugin
+import { CredentialIssuerLD, LdDefaultContexts, VeramoEcdsaSecp256k1RecoverySignature2020, VeramoEd25519Signature2018 } from '@veramo/credential-ld'
+
 // Custom resolvers
 import { DIDResolverPlugin } from '@veramo/did-resolver'
 import { Resolver } from 'did-resolver'
@@ -81,6 +84,6 @@ export const agent = createAgent<IDIDManager & IKeyManager & IDataStore & IDataS
                 }),
             }),
         }),
-        new CredentialPlugin(),
+        new CredentialPlugin(), 
     ],
 })

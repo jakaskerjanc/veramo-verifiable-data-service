@@ -1,17 +1,19 @@
 import { createDID } from '@/verifiable-data/did/manage'
+import { IIdentifier } from '@veramo/core';
+import { agent } from '@/verifiable-data/setup';
 
-export async function initializeDID(host: string) {
-    try {
-        const did = await createDID('did:web', host, 'Secp256k1')
-        console.log('DID created:', did)
-    } catch (error) {
-        console.error('Error initializing DID:', error)
-    }
+let issuerDid: IIdentifier;
 
+async function initializeDID() {
     try {
-        const ethrDid = await createDID('did:ethr', '0xc530503a148babcaca68565cfa576d6f43427a2d', 'Secp256k1')
-        console.log('Ethr DID created:', ethrDid)
+        issuerDid = await createDID('did:ethr')
     } catch (error) {
-        console.error('Error initializing Ethr DID:', error)
+        const defaultDid = await agent.didManagerGetByAlias({ alias: 'default' });
+        issuerDid = defaultDid;
     }
+    console.log('Set issuer DID to:', issuerDid.did);
 }
+
+initializeDID();
+
+export { issuerDid }
