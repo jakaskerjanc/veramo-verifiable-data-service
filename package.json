@@ -3,7 +3,7 @@
   "scripts": {
     "dev": "ts-node-dev -r tsconfig-paths/register --respawn src/index.ts",
     "build": "tsc",
-    "start": "ts-node -r tsconfig-paths/register dist/src/index.js",
+    "start": "ts-node -r tsconfig-paths/register dist/index.js",
     "swagger-autogen": "node swagger/autogen.js"
   },
   "devDependencies": {
